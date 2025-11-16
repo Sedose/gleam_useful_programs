@@ -45,15 +45,28 @@ const base_path = "C:/Users/Here_Comes_Your_User_Name/IdeaProjects/here-comes-yo
 pub fn main() {
   let assert Ok(files) = simplifile.read_directory(base_path)
   files
-  |> list.filter(fn(file) {
-    string.starts_with(file, "application-") && string.ends_with(file, ".yml")
-  })
-  |> list.map(fn(file) {
-    file
-    |> string.replace("application-", "")
-    |> string.replace(".yml", "")
-  })
-  |> list.each(fn(profile) {
+  |> get_profile_names
+  |> copy_bootstrap_files
+}
+
+fn get_profile_names(files: List(String)) -> List(String) {
+  files
+  |> list.filter(is_application_profile_file)
+  |> list.map(extract_profile_name)
+}
+
+fn is_application_profile_file(file: String) -> Bool {
+  string.starts_with(file, "application-") && string.ends_with(file, ".yml")
+}
+
+fn extract_profile_name(file: String) -> String {
+  file
+  |> string.replace("application-", "")
+  |> string.replace(".yml", "")
+}
+
+fn copy_bootstrap_files(profiles: List(String)) -> Nil {
+  list.each(profiles, fn(profile) {
     let src = base_path <> "bootstrap.yml"
     let dst = base_path <> "bootstrap-" <> profile <> ".yml"
     simplifile.copy_file(src, dst)
